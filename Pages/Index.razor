@@ -1,0 +1,71 @@
+﻿@page "/"
+@inject IJSRuntime JS;
+@inject UsuarioService service;
+@inject NavigationManager navigation;
+
+
+
+
+<PageTitle>Index</PageTitle>
+
+
+<div class="col-sm-12 col-lg-6 mx-auto mt-5">
+    <p class="text-center fw-bold h5">Cadastro de Usuário</p>
+    <EditForm Model="@contato" OnValidSubmit="onSubmit">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label for="@nameof(contato.nome)" class="form-label">Nome</label>
+            <InputText type="text" id="@nameof(contato.nome)" @bind-Value="contato.nome" class="form-control"/>
+            <ValidationMessage For="@(() => contato.nome)" style="color: red;" />
+        </div>
+        <div class="mb-3">
+            <label for="@nameof(contato.telefone)" class="form-label">Telefone</label>
+            <InputText type="tel" id="@nameof(contato.telefone)" @bind-Value="contato.telefone" class="form-control"/>
+            <ValidationMessage For="@(() => contato.telefone)" style="color: red;" />
+        </div>
+        <div class="mb-3">
+            <label for="@nameof(contato.email)" class="form-label">Email</label>
+            <InputText type="email" id="@nameof(contato.email)" @bind-Value="contato.email" class="form-control"/>
+            <ValidationMessage For="@(() => contato.email)" style="color: red;" />
+        </div>
+        <div class="col-12 d-flex mb-3">
+            <button type="submit" class="btn btn-primary me-3 d-flex align-items-center justify-content-center">
+                <span class="me-2 p-0">salvar</span>
+                <i class="material-icons">send</i>
+            </button>
+            <button
+            type="reset"
+            @onclick="reset"
+            class="btn btn-danger d-flex align-items-center justify-content-center"
+            >
+                <span class="me-2 p-0">limpar</span>
+                <i class="material-icons">delete</i>
+            </button>            
+        </div>
+    </EditForm>
+    
+</div>
+
+@code {
+
+    private Contato contato = new();
+
+
+    protected override async Task OnInitializedAsync(){
+
+      //JS.InvokeVoidAsync("alert","hello");
+
+    } 
+    
+
+    public void onSubmit(){  
+      service.save(contato);
+      Console.Write(contato.nome);
+      navigation.NavigateTo("/Usuarios", forceLoad: true);
+    }
+
+    public void reset(){
+        contato = new();
+    }
+
+}

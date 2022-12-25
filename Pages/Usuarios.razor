@@ -1,0 +1,83 @@
+@page "/Usuarios"
+@inject UsuarioService service;
+@using System.Text;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@inject IJSRuntime JS;
+@inject UsuarioService service;
+@inject NavigationManager navigation;
+
+
+
+<div class="col-lg-8 mx-auto mt-5">
+ <p class="text-center fw-bolder h5">Tabela de Usuários</p>     
+<table class="table mt-5">
+    <thead class="bg-secondary text-center text-white">
+          <tr>
+            <th>Id</th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+          </tr>
+    </thead>
+    <tbody>
+      @foreach(var ct in contatos){
+          <tr class="text-center">
+            <td class="col">@ct.id</td>
+            <td class="col-4">@ct.nome</td>
+            <td class="col-4">@ct.telefone</td>
+            <td class="col-4">@ct.email</td>                 
+            <td class="col" @onclick="()=> editar(ct)">
+                  <button 
+                  class="btn btn-primary d-flex align-items-center justify-content-center"
+                  data-bs-toggle="offcanvas"
+                  data-bs-target="#menuEdicao"
+                  aria-controls="menuEdicao"
+                  >
+                    <i class="material-icons text-white">edit</i>
+                  </button>
+            </td>  
+            <td class="col" @onclick="()=> deletar(ct.id)">
+                  <button class="btn btn-danger d-flex align-items-center justify-content-center">
+                    <i class="material-icons text-white">delete</i>
+                  </button>
+            </td>                 
+          </tr>
+      }
+    </tbody>    
+</table>
+<FormEdit contato="contatoEdit"></FormEdit>
+
+</div>
+@code {
+
+    public List<Contato> contatos = new List<Contato>();
+    public Contato contatoEdit = new();
+
+    protected override async Task OnInitializedAsync(){
+      //JS.InvokeVoidAsync("alert","hello");
+      this.contatos = await Task.Run(() => service.findAll());
+    }
+
+    async private void editar(Contato ct){
+
+      this.contatoEdit = ct;
+      //string jsonString = JsonSerializer.Serialize(ct);
+      //await JS.InvokeVoidAsync("alert", jsonString);       
+
+    }
+
+    async private void deletar(int id){
+
+      var confirm = await JS.InvokeAsync<bool>("confirm", $"Deseja Realmente Remover {id}");
+            if(confirm){
+              var cts = await Task.Run(() => service.delete(id));
+              this.contatos = cts;
+              navigation.NavigateTo(navigation.Uri, forceLoad: true);
+            }else{
+              return;
+            }
+      
+    }
+     
+}
